@@ -1,0 +1,10 @@
+jan.kowalski@example.com
+anna.nowak@domena.pl
+adam.nowakowski@sub.example.org
+katarzyna@pg.edu.pl
+barbara.kowalczyk@departament.company.net
+jan@kowalski@example.com
+anna.nowak@domena
+adam.nowakowski@.example.com
+.katarzyna.zielinska@pg.edu.pl
+barbara.kowalczyk@departament.company..net
