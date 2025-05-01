@@ -3,11 +3,11 @@
 # Author           : Emilia Łukasiuk (s203620@student.pg.edu.pl)
 # Created On       : 27.04.25
 # Last Modified By : Emilia Łukasiuk (s203620@student.pg.edu.pl)
-# Last Modified On : 29.04.25
-# Version          : 0.2
+# Last Modified On : 01.05.25
+# Version          : 0.3
 #
-# Description      : password manager with openssl - version 0.2, 
-#                    basic function with encryption options,
+# Description      : password manager with openssl - version 0.3, 
+#                    basic function with encryption options and copying to clipboard,
 #                    terminal as interface, 
 #
 # Licensed under GPL (see /usr/share/common-licenses/GPL for more details
@@ -78,6 +78,36 @@ show_entries() {
     encrypt_file
 }
 
+copy_password() {
+    read -p "Enter service name: " SERVICE
+    decrypt_file
+
+    MATCH=$(grep "^$SERVICE |" "$TEMP_FILE")
+    if [ -z "$MATCH" ]; then
+        echo "No entry found for $SERVICE"
+        encrypt_file
+        return
+    fi
+
+    PASSWORD=$(echo "$MATCH" | awk -F' | ' '{print $NF}')
+    # Choose an option based on OS
+    if command -v pbcopy &> /dev/null; then
+        echo -n "$PASSWORD" | pbcopy
+        echo "Password copied to clipboard (macOS)."
+    elif command -v xclip &> /dev/null; then
+        echo -n "$PASSWORD" | xclip -selection clipboard
+        echo "Password copied to clipboard (Linux with xclip)."
+    elif command -v xsel &> /dev/null; then
+        echo -n "$PASSWORD" | xsel --clipboard --input
+        echo "Password copied to clipboard (Linux with xsel)."
+    else
+        echo "Clipboard tool not found. Please install xclip, xsel, or pbcopy."
+    fi
+
+    encrypt_file
+}
+
+
 if [ ! -f "$PASSWORD_FILE" ]; then
     echo "Creating a new password file."
     read -s -p "Set a master password: " MASTER_PASS
@@ -95,13 +125,15 @@ while true; do
     echo "---< PASSWORD MANAGER >---"
     echo "1. Add new password"
     echo "2. Show all entries"
-    echo "3. Exit"
+    echo "2. Copy password to clipboard"
+    echo "4. Exit"
     read -p "Choose an option: " OPTION
 
     case $OPTION in
         1) add_entry ;;
         2) show_entries ;;
-        3) echo "bye bye!"; exit 0 ;;
+        3) copy_password ;;
+        4) echo "bye bye!"; exit 0 ;;
         *) echo "Invalid option!" ;;
     esac
 done
