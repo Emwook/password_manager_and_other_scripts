@@ -3,18 +3,68 @@
 # Author           : Emilia Łukasiuk (s203620@student.pg.edu.pl)
 # Created On       : 27.04.25
 # Last Modified By : Emilia Łukasiuk
-# Last Modified On : 03.05.25
-# Version          : 0.4
+# Last Modified On : 04.05.25
+# Version          : 0.5
 #
-# Description      : password manager with openssl - version 0.4, 
-#                    basic function with encryption options and copying to clipboard,
+# Description      : password manager with openssl - version 0.5, 
+#                    encryption options, copying to clipboard, getops for -v/-h
 #                    Zenity used as interface
 # Licensed under GPL
+
+
+show_help() {
+    echo "      +------------------------------------------------------------+"
+    echo "      |                                                            |"
+    echo "      |                Password Manager Script v0.5                |"
+    echo "      |                                                            |"
+    echo "      | Options:                                                   |"
+    echo "      |   -h          Show this help message and exit              |"
+    echo "      |   -v          Show info about the author and version       |"
+    echo "      |                                                            |"
+    echo "      | Example usage:                                             |"
+    echo "      |   ./password-manager.sh  # Launches the password manager   |"
+    echo "      |                                                            |"
+    echo "      +------------------------------------------------------------+"
+    echo
+    exit 0
+}
+
+show_version() {
+    echo
+    echo "      +--------------------------------+"
+    echo "      |                                |"
+    echo "      |  Password Manager Script v0.5  |"
+    echo "      |    ->  OpenSSL . Zenity  <-    |"
+    echo "      |                                |"
+    echo "      |    made by Emilia Łukasiuk     |"
+    echo "      |  for Operating Systems course  |"
+    echo "      |            May 2025            |"
+    echo "      |                                |"
+    echo "      +--------------------------------+"
+    echo
+    exit 0
+}
+
+while getopts ":hv" option; do
+    case "$option" in
+        h) # Show help
+            show_help
+            ;;
+        v) # Show version
+            show_version
+            ;;
+        \?) # Handle invalid options
+            echo "Invalid option: -$OPTARG"
+            show_help
+            ;;
+    esac
+done
+
+
 
 PASSWORD_FILE="passwords.enc"
 TEMP_FILE="passwords.tmp"
 MAGIC_HEADER="PASSWORD_MANAGER"
-
 MASTER_PASS=""
 
 copy_to_clipboard() {
@@ -108,7 +158,6 @@ show_entries() {
 copy_password() {
     SERVICE=$(zenity --entry --title="Copy Password" --text="Enter service name:" --width=400 --height=400 --ok-label="Copy" --cancel-label="Cancel") || return
     decrypt_file
-    
     MATCH=$(grep "^$SERVICE |" "$TEMP_FILE")
     encrypt_file
 
